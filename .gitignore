@@ -1,0 +1,12 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore virtual environments
+venv/
+
+# Ignore Jupyter temp files
+.ipynb_checkpoints/
+
+# Ignore large data files
+*.csv
