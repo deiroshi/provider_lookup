@@ -1,0 +1,14 @@
+flowchart TD
+    A["npidata_pfile.csv"] --> B(["Block 1: Extract People Only"]) & D(["Block 3: Extract NPI-Taxonomy Links"])
+    B --> C["providers.csv"]
+    D --> E["provider_taxonomies.csv"]
+    F["1nucc_taxonomy_251.csv"] --> G(["Block 2: Clean Taxonomy Codes"])
+    G --> H["taxonomy.csv"]
+
+    style A fill:#BBDEFB
+    style C fill:#FFF9C4
+    style E fill:#FFF9C4
+    style F fill:#BBDEFB
+    style H fill:#FFF9C4
+
+
