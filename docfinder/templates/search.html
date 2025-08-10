@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Medical Provider</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+
+        .page-header {
+            background-color: #004085;
+            color: white;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .form-section {
+            background-color: white;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-section h2 {
+            margin-top: 0;
+            font-size: 22px;
+        }
+
+        .form-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .form-group {
+            flex: 1 1 30%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background-color: #004085;
+            color: white;
+        }
+
+        .btn-clear {
+            background-color: #e0e0e0;
+            color: black;
+        }
+
+        .results {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .provider {
+            padding: 15px 0;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+{% load formatting %}
+
+<div class="page-header">
+    NPI Registry
+</div>
+
+<div class="form-section">
+    <h2>Search Medical Provider</h2>
+    <form method="get">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" name="first_name" id="first_name" value="{{ request.GET.first_name }}">
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" name="last_name" id="last_name" value="{{ request.GET.last_name }}">
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" name="city" id="city" value="{{ request.GET.city }}">
+            </div>
+            <div class="form-group">
+                <label for="state">State</label>
+                <select name="state" id="state">
+                    <option value="">Any</option>
+                    {% for code, name in state_choices %}
+                        <option value="{{ code }}" {% if request.GET.state == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="zip">ZIP Code</label>
+                <input type="text" name="zip" id="zip" value="{{ request.GET.zip }}">
+            </div>
+        
+            <div class="form-group">
+                <label for="description">Specialty / Description</label>
+                <input type="text" name="description" id="description" value="{{ request.GET.description }}">
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{% url 'search' %}" class="btn btn-clear">Clear</a>
+        </div>
+    </form>
+</div>
+
+{% if show_results %}
+<div class="results">
+    <h3>Search Results</h3>
+    {% if results %}
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead style="background-color: #f1f1f1;">
+                <tr>
+                    <th style="padding: 10px; border: 1px solid #ccc; width: 20%;">Name</th>
+                    <th style="padding: 10px; border: 1px solid #ccc; width: 5%;">Credential</th>
+                    <th style="padding: 10px; border: 1px solid #ccc; width: 25%;">Address</th>
+                    <th style="padding: 10px; border: 1px solid #ccc; width: 20%;">City, State ZIP</th>
+                    <th style="padding: 10px; border: 1px solid #ccc; width: 15%;">Phone</th>
+                    <th style="padding: 10px; border: 1px solid #ccc; width: 15%;">Map</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for provider in results %}
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ccc;">
+                        {{ provider.first_name|title }} {{ provider.last_name|title }}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ccc;">
+                        {{ provider.credential|default:"N/A" }}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ccc;">
+                        {{ provider.address_1|title }} {{ provider.address_2|title }}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ccc;">
+                        {{ provider.city|title }}, {{ provider.state }} {{ provider.zip }}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ccc;">
+                        {{ provider.phone_number|format_phone|default:"N/A" }}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ccc;">
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ provider.address_1|urlencode }}+{{ provider.city|urlencode }}+{{ provider.state }}" target="_blank">Open in Map</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No providers found. Try different search terms.</p>
+    {% endif %}
+</div>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Provider Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+        }
+        .form-section {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        .form-section h2 {
+            margin-top: 0;
+        }
+        .form-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .form-fields label {
+            flex: 1 1 30%;
+            display: flex;
+            flex-direction: column;
+        }
+        .search-button {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .results {
+            margin-top: 40px;
+        }
+        .provider {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-section">
+        <h2>Search Medical Provider</h2>
+        <form method="get">
+            <div class="form-fields">
+                <label>First Name:
+                    <input type="text" name="first" value="{{ query.first_name }}">
+                </label>
+                <label>Last Name:
+                    <input type="text" name="last" value="{{ query.last_name }}">
+                </label>
+                <label>City:
+                    <input type="text" name="city" value="{{ query.city }}">
+                </label>
+                <label>State:
+                    <input type="text" name="state" value="{{ query.state }}">
+                </label>
+                <label>ZIP Code:
+                    <input type="text" name="zip" value="{{ query.zip }}">
+                </label>
+                <label>Specialty/Description:
+                    <input type="text" name="description" value="{{ query.description }}">
+                </label>
+            </div>
+            <div class="search-button">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+
+    {% if show_results %}
+    <div class="results">
+        <h3>Search Results</h3>
+        {% if results %}
+            {% for provider in results %}
+                <div class="provider">
+                    <strong>{{ provider.first_name }} {{ provider.last_name }}</strong><br>
+                    {{ provider.credential|default:"N/A" }}<br>
+                    {{ provider.address_1|default:"" }} {{ provider.address_2|default:"" }}<br>
+                    {{ provider.city }}, {{ provider.state }} {{ provider.zip }}<br>
+                    Phone: {{ provider.phone|default:"N/A" }}<br>
+                    <a href="https://www.google.com/maps/search/?api=1&query={{ provider.address_1|urlencode }}+{{ provider.city|urlencode }}+{{ provider.state }}" target="_blank">Open in Map</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No providers found. Try different search terms.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</body>
+</html>
